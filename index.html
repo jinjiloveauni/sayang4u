@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday!</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(to bottom, #ffd1dc, #fff0f5);
+        overflow-x: hidden;
+        text-align: center;
+    }
+
+    h1 {
+        font-family: 'Pacifico', cursive;
+        font-size: 3em;
+        background: linear-gradient(45deg, #ff69b4, #ffb6c1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-top: 40px;
+    }
+
+    .balloon {
+        position: absolute;
+        width: 60px;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0% { transform: translateY(100vh); }
+        100% { transform: translateY(-150px); }
+    }
+
+    .photos {
+        margin-top: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .photos img {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .gift {
+        margin: 30px;
+        cursor: pointer;
+        font-size: 50px;
+    }
+
+    .secret-message {
+        display: none;
+        font-size: 1.5em;
+        color: #ff1493;
+        margin-top: 20px;
+    }
+
+    .game-link {
+        display: inline-block;
+        padding: 12px 20px;
+        margin-top: 40px;
+        background: #ff69b4;
+        color: white;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: bold;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        transition: background 0.3s;
+    }
+
+    .game-link:hover {
+        background: #ff85c1;
+    }
+
+    canvas#confetti {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+</style>
+</head>
+<body>
+
+<!-- Background Music -->
+<audio autoplay loop>
+    <source src="https://www.bensound.com/bensound-music/bensound-dreams.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Confetti Canvas -->
+<canvas id="confetti"></canvas>
+
+<h1>Happy Birthday, Izzatul Auni!</h1>
+
+<!-- Photo Collage -->
+<div class="photos">
+    <img src="https://i.imgur.com/Kkq4PKs.jpeg" alt="MY FAV PHOTO :3">
+    <img src="https://i.imgur.com/IbUniQe.gif" alt="DAMN PRETTY !">
+    <img src="https://i.imgur.com/NSh9FN4.jpeg" alt="YOU LOOOK SOO CUTEEEEE <333">
+</div>
+
+<!-- Gift -->
+<div class="gift" onclick="showMessage()">🎁</div>
+<div class="secret-message" id="secretMessage">
+   i’m sorry i didn’t wish you on your day, it’s not that i forgot but because you never told me when it was. i looked through our chats here and on telegram, i said i forgot because i didn’t want to make you feel bad.
+
+yes, i never asked your favorite color or anything else. but i did stalk your ig quietly, trying to know you without you knowing, because i was scared to disturb you.
+
+i didn’t wish you properly but i wanted to learn coding to make you something special. i failed, and i’m too late.
+
+i never asked, but that doesn’t mean i don’t love you. it doesn’t mean i don’t want to love you or get to know you better.
+
+every time i wanted to ask, you were busy doing your thing, so i waited without making a move. i didn’t deny it, i just wanted you to be loved by someone who truly deserves you.
+
+maybe i’m a bad guy, but i promise i’ll give you my software when it’s done.
+
+today, even if it’s late, i just want to say happy birthday, and that i hope this year brings you happiness and love that truly sees you.
+</div>
+
+<!-- Game Link -->
+<a href="cupcake-game.html" class="game-link">Play Your Birthday Game 🎮</a>
+
+<script>
+// Show Secret Message
+function showMessage() {
+    document.getElementById('secretMessage').style.display = 'block';
+}
+
+// Confetti Animation
+const confetti = document.getElementById("confetti");
+const ctx = confetti.getContext("2d");
+confetti.width = window.innerWidth;
+confetti.height = window.innerHeight;
+
+let pieces = [];
+let numberOfPieces = 150;
+let lastUpdateTime = Date.now();
+
+function randomColor() {
+    const colors = ['#ff0a54', '#ff477e', '#ff7096', '#ff85a1', '#fbb1bd', '#f9bec7'];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function update() {
+    const now = Date.now();
+    const dt = now - lastUpdateTime;
+    lastUpdateTime = now;
+
+    pieces = pieces.filter(p => p.y < confetti.height);
+
+    while (pieces.length < numberOfPieces) {
+        pieces.push({
+            x: Math.random() * confetti.width,
+            y: -20,
+            size: Math.random() * 10 + 10,
+            color: randomColor(),
+            speed: Math.random() * 3 + 2
+        });
+    }
+
+    pieces.forEach(p => p.y += p.speed);
+
+    draw();
+    requestAnimationFrame(update);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, confetti.width, confetti.height);
+    pieces.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
+        ctx.fill();
+    });
+}
+
+update();
+</script>
+
+</body>
+</html>

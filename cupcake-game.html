@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Catch the Cupcakes</title>
+<style>
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, #ffd1dc, #fff0f5);
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    font-family: 'Pacifico', cursive;
+    color: #ff69b4;
+    margin: 20px 0 0;
+  }
+  canvas {
+    background: #fff0f5;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(255,105,180,0.3);
+    touch-action: none;
+  }
+  #scoreboard {
+    font-size: 1.2rem;
+    margin: 10px;
+    color: #c71585;
+  }
+  #message {
+    font-size: 1.5rem;
+    color: #ff1493;
+    margin-top: 15px;
+  }
+  #backButton {
+    margin-top: 20px;
+    background: #ff69b4;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: background 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  #backButton:hover {
+    background: #ff85c1;
+  }
+</style>
+</head>
+<body>
+
+<h1>catch the cupcakes!</h1>
+<div id="scoreboard">score: 0</div>
+<canvas id="gameCanvas" width="350" height="500"></canvas>
+<div id="message"></div>
+<a href="index.html" id="backButton">Back to Birthday Page</a>
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const basketWidth = 80;
+  const basketHeight = 30;
+  let basketX = (canvas.width - basketWidth) / 2;
+  const basketY = canvas.height - basketHeight - 10;
+
+  const cupcakeRadius = 15;
+  const cupcakes = [];
+
+  let score = 0;
+  let gameOver = false;
+  let gameDuration = 30000; // 30 seconds
+  let startTime = null;
+
+  function createCupcake() {
+    return {
+      x: Math.random() * (canvas.width - cupcakeRadius * 2) + cupcakeRadius,
+      y: -cupcakeRadius,
+      speed: 2 + Math.random() * 2,
+    };
+  }
+
+  function drawBasket() {
+    ctx.fillStyle = '#ff69b4';
+    ctx.fillRect(basketX, basketY, basketWidth, basketHeight);
+    // draw basket stripes
+    ctx.fillStyle = '#ff1493';
+    for(let i = 0; i < basketWidth; i += 15) {
+      ctx.fillRect(basketX + i, basketY, 8, basketHeight);
+    }
+  }
+
+  function drawCupcake(c) {
+    // cupcake base circle
+    ctx.fillStyle = '#f48fb1'; 
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, cupcakeRadius, 0, Math.PI * 2);
+    ctx.fill();
+    // frosting (smaller white circle)
+    ctx.fillStyle = '#fff0f5';
+    ctx.beginPath();
+    ctx.arc(c.x, c.y - 5, cupcakeRadius / 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    // cherry
+    ctx.fillStyle = '#d81b60';
+    ctx.beginPath();
+    ctx.arc(c.x, c.y - 10, cupcakeRadius / 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawScore() {
+    document.getElementById('scoreboard').textContent = `score: ${score}`;
+  }
+
+  function drawMessage(text) {
+    document.getElementById('message').textContent = text;
+  }
+
+  function gameLoop(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const elapsed = timestamp - startTime;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw basket
+    drawBasket();
+
+    // Create cupcakes periodically
+    if (cupcakes.length < 5) {
+      cupcakes.push(createCupcake());
+    }
+
+    // Move and draw cupcakes
+    for (let i = cupcakes.length - 1; i >= 0; i--) {
+      let c = cupcakes[i];
+      c.y += c.speed;
+
+      // Check if cupcake caught
+      if (
+        c.y + cupcakeRadius >= basketY &&
+        c.x >= basketX &&
+        c.x <= basketX + basketWidth
+      ) {
+        score++;
+        cupcakes.splice(i, 1);
+      }
+      // Remove cupcakes that fall below canvas
+      else if (c.y - cupcakeRadius > canvas.height) {
+        cupcakes.splice(i, 1);
+      } else {
+        drawCupcake(c);
+      }
+    }
+
+    drawScore();
+
+    if (elapsed >= gameDuration) {
+      gameOver = true;
+      drawMessage(`game over! your score is ${score}`);
+    }
+
+    if (!gameOver) {
+      requestAnimationFrame(gameLoop);
+    }
+  }
+
+  // Move basket with mouse or touch
+  function moveBasket(x) {
+    basketX = x - basketWidth / 2;
+    if (basketX < 0) basketX = 0;
+    if (basketX + basketWidth > canvas.width) basketX = canvas.width - basketWidth;
+  }
+
+  canvas.addEventListener('mousemove', e => {
+    moveBasket(e.offsetX);
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    let touch = e.touches[0];
+    let rect = canvas.getBoundingClientRect();
+    let x = touch.clientX - rect.left;
+    moveBasket(x);
+  }, { passive: false });
+
+  // Start game
+  requestAnimationFrame(gameLoop);
+</script>
+
+</body>
+</html>
